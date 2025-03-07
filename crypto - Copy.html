@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptoverse Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+	<style>
+	body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    display: flex;
+}
+
+.container {
+    display: flex;
+    width: 100%;
+}
+
+/* Sidebar */
+.sidebar {
+    background-color: #1e293b;
+    color: white;
+    width: 200px;
+    padding: 20px;
+}
+
+.sidebar h2 {
+    font-size: 24px;
+}
+
+.sidebar nav ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.sidebar nav ul li {
+    margin-top: 20px;
+}
+
+.sidebar nav ul li a {
+    color: white;
+    text-decoration: none;
+}
+
+/* Main Content */
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+}
+
+.stats, .top-cryptos {
+    margin-bottom: 40px;
+}
+
+.stats-grid, .crypto-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.crypto-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+}
+
+.crypto-card img {
+    width: 30px;
+}
+</style>
+<script>
+// API URL for fetching cryptocurrency data
+const API_URL = "https://api.coingecko.com/api/v3/global";
+const TOP_10_URL = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1";
+
+// Fetch Global Crypto Stats
+async function fetchGlobalStats() {
+    const response = await fetch(API_URL);
+    const data = await response.json();
+
+    document.getElementById('total-cryptos').textContent = data.data.active_cryptocurrencies.toLocaleString();
+    document.getElementById('total-exchanges').textContent = data.data.markets.toLocaleString();
+    document.getElementById('market-cap').textContent = parseFloat(data.data.total_market_cap.usd).toLocaleString();
+    document.getElementById('volume').textContent = parseFloat(data.data.total_volume.usd).toLocaleString();
+}
+
+// Fetch Top 10 Cryptocurrencies
+async function fetchTopCryptos() {
+    const response = await fetch(TOP_10_URL);
+    const data = await response.json();
+
+    const cryptoList = document.getElementById('crypto-list');
+    
+    data.forEach((crypto) => {
+        const card = document.createElement('div');
+        card.className = 'crypto-card';
+        card.innerHTML = `
+            <img src="${crypto.image}" alt="${crypto.name}">
+            <h3>${crypto.name}</h3>
+            <p>Price: $${crypto.current_price.toLocaleString()}</p>
+            <p>Market Cap Rank: ${crypto.market_cap_rank}</p>
+        `;
+        cryptoList.appendChild(card);
+    });
+}
+
+// Initialize Dashboard
+fetchGlobalStats();
+fetchTopCryptos();
+</script>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h2>Cryptoverse</h2>
+            <nav>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Cryptocurrencies</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Global Crypto Stats -->
+            <section class="stats">
+                <h1>Global Crypto Stats</h1>
+                <div class="stats-grid">
+                    <div>Total Cryptocurrencies: <span id="total-cryptos">0</span></div>
+                    <div>Total Exchanges: <span id="total-exchanges">0</span></div>
+                    <div>Total Market Cap: $<span id="market-cap">0</span></div>
+                    <div>Total 24h Volume: $<span id="volume">0</span></div>
+                </div>
+            </section>
+
+            <!-- Top 10 Cryptocurrencies -->
+            <section class="top-cryptos">
+                <h2>Top 10 Cryptocurrencies in the World</h2>
+                <div id="crypto-list" class="crypto-grid"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
